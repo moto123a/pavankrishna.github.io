@@ -3,1194 +3,949 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pavan Krishna — Software Engineer</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Pavan Krishna — Data Engineer</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #020409;
-    --bg2: #05080f;
-    --cyan: #00e5ff;
-    --gold: #f0a500;
-    --red: #ff2d55;
-    --white: #e8eaf0;
-    --muted: #4a5568;
-    --glass: rgba(255,255,255,0.03);
-    --border: rgba(0,229,255,0.12);
-  }
+:root{
+  --bg:#010208;--cyan:#00f5ff;--gold:#ffcc00;--red:#ff2055;
+  --green:#00ff88;--purple:#c044ff;--white:#eef2ff;--dim:#2a3050;
+  --glass:rgba(255,255,255,0.02);--border:rgba(0,245,255,0.1);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--white);font-family:'Syne',sans-serif;overflow-x:hidden;cursor:none;}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* NOISE */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");pointer-events:none;z-index:1;opacity:0.35;}
 
-  html { scroll-behavior: smooth; }
+/* CURSOR */
+#cur{width:10px;height:10px;background:var(--cyan);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);box-shadow:0 0 20px var(--cyan),0 0 40px rgba(0,245,255,0.3);transition:width .25s,height .25s,border-radius .25s;}
+#cur2{width:40px;height:40px;border:1px solid rgba(0,245,255,0.4);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:left .12s ease,top .12s ease,width .3s,height .3s,border-radius .3s;}
+#cur.link{width:60px;height:60px;background:transparent;border-radius:50%;border:1px solid var(--cyan);}
+#cur2.link{width:4px;height:4px;}
 
-  body {
-    background: var(--bg);
-    color: var(--white);
-    font-family: 'Syne', sans-serif;
-    overflow-x: hidden;
-    cursor: none;
-  }
+/* LOADER */
+#loader{position:fixed;inset:0;background:var(--bg);z-index:8000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;transition:opacity 1s,visibility 1s;}
+#loader.out{opacity:0;visibility:hidden;pointer-events:none;}
+.l-title{font-family:'Bebas Neue';font-size:52px;letter-spacing:10px;color:var(--cyan);text-shadow:0 0 40px rgba(0,245,255,0.6);}
+.l-sub{font-family:'JetBrains Mono';font-size:10px;letter-spacing:5px;color:var(--dim);text-transform:uppercase;}
+.l-track{width:320px;height:1px;background:rgba(255,255,255,0.06);}
+.l-fill{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--purple));transition:width .04s;box-shadow:0 0 12px var(--cyan);}
+.l-num{font-family:'Bebas Neue';font-size:72px;color:rgba(0,245,255,0.06);letter-spacing:5px;position:absolute;}
 
-  /* CURSOR */
-  #cursor {
-    width: 12px; height: 12px;
-    background: var(--cyan);
-    border-radius: 50%;
-    position: fixed;
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate(-50%,-50%);
-    transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
-    mix-blend-mode: screen;
-  }
-  #cursor-trail {
-    width: 40px; height: 40px;
-    border: 1px solid rgba(0,229,255,0.4);
-    border-radius: 50%;
-    position: fixed;
-    pointer-events: none;
-    z-index: 9998;
-    transform: translate(-50%,-50%);
-    transition: left 0.12s ease, top 0.12s ease;
-  }
+/* MAIN 3D CANVAS — fixed, full screen */
+#c{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
 
-  /* CANVAS */
-  #hero-canvas {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: 0;
-  }
+/* SCROLL CONTAINER */
+#scroll-wrap{position:relative;z-index:10;}
 
-  /* NAV */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 24px 60px;
-    background: linear-gradient(to bottom, rgba(2,4,9,0.9), transparent);
-    backdrop-filter: blur(2px);
-  }
-  .nav-logo {
-    font-family: 'Bebas Neue', cursive;
-    font-size: 28px;
-    letter-spacing: 4px;
-    color: var(--cyan);
-    text-shadow: 0 0 20px rgba(0,229,255,0.5);
-  }
-  .nav-links { display: flex; gap: 40px; }
-  .nav-links a {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--muted);
-    text-decoration: none;
-    transition: color 0.3s;
-  }
-  .nav-links a:hover { color: var(--cyan); }
+/* Each scroll section is tall to allow scroll-driven camera animation */
+.s-block{height:100vh;position:relative;display:flex;align-items:center;}
 
-  /* SECTIONS */
-  section {
-    position: relative;
-    z-index: 10;
-  }
+/* HUD OVERLAY - stays fixed */
+#hud{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;padding:28px 60px;pointer-events:none;}
+.hud-logo{font-family:'Bebas Neue';font-size:28px;letter-spacing:8px;color:var(--cyan);text-shadow:0 0 20px rgba(0,245,255,0.5);pointer-events:all;}
+.hud-nav{display:flex;gap:36px;pointer-events:all;}
+.hud-nav a{font-family:'JetBrains Mono';font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);text-decoration:none;transition:color .3s;}
+.hud-nav a:hover{color:var(--cyan);}
+.hud-right{display:flex;gap:12px;align-items:center;pointer-events:all;}
+.hud-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:blink 2s infinite;}
+.hud-status{font-family:'JetBrains Mono';font-size:10px;letter-spacing:2px;color:var(--dim);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-  /* HERO */
-  #hero {
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    flex-direction: column;
-  }
+/* SCROLL PROGRESS BAR */
+#prog{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--purple));z-index:300;transition:width .1s;box-shadow:0 0 8px var(--cyan);}
 
-  .hero-eyebrow {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 5px;
-    color: var(--cyan);
-    text-transform: uppercase;
-    margin-bottom: 24px;
-    opacity: 0;
-    animation: fadeUp 1s 0.5s forwards;
-  }
+/* SECTION CONTENT - overlaid on 3D */
+.section-content{position:relative;z-index:20;padding:0 8vw;width:100%;}
 
-  .hero-name {
-    font-family: 'Bebas Neue', cursive;
-    font-size: clamp(80px, 12vw, 160px);
-    line-height: 0.9;
-    letter-spacing: 2px;
-    background: linear-gradient(135deg, #ffffff 0%, #a0aec0 50%, #00e5ff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    opacity: 0;
-    animation: fadeUp 1s 0.8s forwards;
-    filter: drop-shadow(0 0 40px rgba(0,229,255,0.3));
-  }
+/* ---- HERO ---- */
+#sec-hero{height:100vh;}
+.hero-wrap{display:flex;flex-direction:column;justify-content:center;height:100vh;padding:0 8vw;}
+.hero-pre{font-family:'JetBrains Mono';font-size:11px;letter-spacing:5px;color:var(--cyan);text-transform:uppercase;margin-bottom:20px;opacity:0;animation:fu .8s .5s forwards;}
+.hero-h1{font-family:'Bebas Neue';font-size:clamp(80px,13vw,180px);line-height:.88;letter-spacing:2px;opacity:0;animation:fu .8s .7s forwards;}
+.hero-h1 .outline{-webkit-text-stroke:1px rgba(255,255,255,0.18);color:transparent;}
+.hero-row{display:flex;gap:32px;align-items:flex-start;margin-top:36px;opacity:0;animation:fu .8s .9s forwards;}
+.hero-desc{font-size:16px;color:#4a5878;line-height:1.9;max-width:420px;}
+.hero-desc strong{color:var(--white);}
+.hero-vline{width:1px;height:80px;background:linear-gradient(to bottom,var(--cyan),transparent);flex-shrink:0;margin-top:4px;}
+.hero-meta{display:flex;flex-direction:column;gap:8px;}
+.hero-meta span{font-family:'JetBrains Mono';font-size:11px;color:var(--dim);letter-spacing:1px;}
+.hero-meta strong{color:var(--white);}
+.hero-chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:44px;opacity:0;animation:fu .8s 1.1s forwards;}
+.chip{padding:9px 20px;border:1px solid rgba(255,255,255,0.07);font-family:'JetBrains Mono';font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);border-radius:1px;transition:all .3s;}
+.chip:hover,.chip.on{border-color:var(--cyan);color:var(--cyan);background:rgba(0,245,255,0.04);}
+.chip.on::before{content:'● ';font-size:7px;}
 
-  .hero-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 18px;
-    font-weight: 400;
-    color: var(--muted);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-top: 20px;
-    opacity: 0;
-    animation: fadeUp 1s 1.1s forwards;
-  }
+.scroll-cue{position:absolute;bottom:40px;left:8vw;display:flex;flex-direction:column;align-items:flex-start;gap:10px;opacity:0;animation:fu .8s 1.6s forwards;}
+.scroll-cue-line{width:1px;height:50px;background:linear-gradient(to bottom,var(--cyan),transparent);animation:pulse-line 2s infinite;}
+.scroll-cue-txt{font-family:'JetBrains Mono';font-size:9px;letter-spacing:4px;color:var(--dim);text-transform:uppercase;writing-mode:vertical-lr;}
+@keyframes pulse-line{0%,100%{opacity:.4}50%{opacity:1}}
 
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 40px;
-    padding: 12px 28px;
-    border: 1px solid var(--border);
-    border-radius: 50px;
-    background: var(--glass);
-    backdrop-filter: blur(10px);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: var(--cyan);
-    opacity: 0;
-    animation: fadeUp 1s 1.4s forwards;
-  }
-  .pulse-dot {
-    width: 8px; height: 8px;
-    background: #00ff88;
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-    box-shadow: 0 0 10px #00ff88;
-  }
+/* MARQUEE */
+.marquee-strip{position:relative;z-index:20;overflow:hidden;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(0,245,255,0.03);padding:14px 0;}
+.mqrow{display:flex;width:max-content;animation:mq 30s linear infinite;}
+.mqrow.rev{animation-direction:reverse;}
+.mqitem{font-family:'Bebas Neue';font-size:14px;letter-spacing:5px;color:rgba(0,245,255,0.35);padding:0 28px;display:flex;align-items:center;gap:28px;white-space:nowrap;}
+.mqitem::after{content:'◆';font-size:7px;}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-  .hero-scroll {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 3px;
-    color: var(--muted);
-    text-transform: uppercase;
-    opacity: 0;
-    animation: fadeUp 1s 2s forwards;
-  }
-  .scroll-line {
-    width: 1px;
-    height: 40px;
-    background: linear-gradient(to bottom, var(--cyan), transparent);
-    animation: scrollPulse 2s infinite;
-  }
+/* ---- CONTENT SECTIONS ---- */
+.sec{position:relative;z-index:20;padding:120px 8vw;max-width:1400px;margin:0 auto;}
 
-  /* ABOUT */
-  #about {
-    padding: 120px 60px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  .section-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 4px;
-    color: var(--cyan);
-    text-transform: uppercase;
-    margin-bottom: 60px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  .section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(to right, var(--border), transparent);
-  }
+.s-head{display:flex;align-items:flex-end;gap:16px;margin-bottom:80px;}
+.s-num{font-family:'Bebas Neue';font-size:100px;line-height:1;color:rgba(0,245,255,0.05);user-select:none;}
+.s-titles{}
+.s-tag{font-family:'JetBrains Mono';font-size:10px;letter-spacing:4px;color:var(--cyan);text-transform:uppercase;margin-bottom:6px;}
+.s-name{font-family:'Bebas Neue';font-size:52px;letter-spacing:2px;color:var(--white);}
 
-  .about-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
-    align-items: start;
-  }
-  .about-bio {
-    font-size: 18px;
-    line-height: 1.8;
-    color: #8892a4;
-    font-weight: 400;
-  }
-  .about-bio strong { color: var(--white); font-weight: 600; }
+/* ABOUT */
+.about-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:80px;align-items:start;}
+.about-p{font-size:17px;color:#4a5878;line-height:2;margin-bottom:22px;}
+.about-p strong{color:var(--white);}
+.about-p em{color:var(--cyan);font-style:normal;}
+.edu-stack{display:flex;flex-direction:column;gap:8px;margin-top:48px;}
+.edu-card{padding:22px 28px;border:1px solid var(--border);background:var(--glass);backdrop-filter:blur(10px);display:flex;justify-content:space-between;align-items:center;transition:all .3s;}
+.edu-card:hover{border-color:rgba(0,245,255,0.3);}
+.edu-deg{font-weight:700;font-size:14px;}
+.edu-sch{font-family:'JetBrains Mono';font-size:10px;color:var(--dim);margin-top:4px;letter-spacing:1px;}
+.edu-yr{font-family:'Bebas Neue';font-size:26px;color:var(--cyan);}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:1px;}
+.met{padding:38px;background:var(--glass);border:1px solid var(--border);text-align:center;transition:all .4s;position:relative;overflow:hidden;}
+.met::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--purple));transform:scaleX(0);transform-origin:left;transition:transform .4s;}
+.met:hover::after{transform:scaleX(1);}
+.met:hover{border-color:rgba(0,245,255,0.25);}
+.met-v{font-family:'Bebas Neue';font-size:68px;line-height:1;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.met-l{font-family:'JetBrains Mono';font-size:9px;letter-spacing:3px;color:var(--dim);margin-top:8px;text-transform:uppercase;}
 
-  .stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2px;
-    margin-top: 40px;
-  }
-  .stat-box {
-    padding: 30px;
-    background: var(--glass);
-    border: 1px solid var(--border);
-    backdrop-filter: blur(10px);
-    transition: border-color 0.3s, background 0.3s;
-  }
-  .stat-box:hover {
-    border-color: rgba(0,229,255,0.4);
-    background: rgba(0,229,255,0.03);
-  }
-  .stat-num {
-    font-family: 'Bebas Neue', cursive;
-    font-size: 56px;
-    color: var(--cyan);
-    line-height: 1;
-  }
-  .stat-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-top: 8px;
-  }
+/* SKILLS */
+.sk-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;}
+.sk-row{padding:28px 32px;background:var(--glass);border:1px solid var(--border);transition:all .3s;}
+.sk-row:hover{border-color:rgba(0,245,255,0.25);background:rgba(0,245,255,0.025);}
+.sk-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.sk-name{font-family:'Bebas Neue';font-size:19px;letter-spacing:2px;}
+.sk-pct{font-family:'JetBrains Mono';font-size:12px;color:var(--cyan);}
+.sk-track{height:2px;background:rgba(255,255,255,0.06);border-radius:2px;margin-bottom:12px;}
+.sk-fill{height:100%;width:0;border-radius:2px;transition:width 1.4s cubic-bezier(.23,1,.32,1);box-shadow:0 0 8px currentColor;}
+.sk-tags{display:flex;flex-wrap:wrap;gap:5px;}
+.sk-tag{font-family:'JetBrains Mono';font-size:9px;padding:3px 9px;border:1px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.28);border-radius:1px;transition:all .25s;}
+.sk-tag:hover{border-color:var(--cyan);color:var(--cyan);}
 
-  /* SKILLS */
-  #skills {
-    padding: 120px 60px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
+/* EXPERIENCE */
+.exp-wrap{display:grid;grid-template-columns:260px 1fr;gap:60px;}
+.exp-tabs{display:flex;flex-direction:column;gap:0;position:sticky;top:130px;align-self:start;}
+.exp-tab{padding:22px 24px;border-left:2px solid rgba(255,255,255,0.06);cursor:pointer;transition:all .3s;}
+.exp-tab:hover,.exp-tab.on{border-left-color:var(--cyan);background:rgba(0,245,255,0.03);}
+.exp-tc{font-family:'Bebas Neue';font-size:22px;letter-spacing:2px;color:var(--dim);transition:color .3s;}
+.exp-tab.on .exp-tc{color:var(--white);}
+.exp-tp{font-family:'JetBrains Mono';font-size:10px;letter-spacing:1px;color:var(--dim);margin-top:4px;}
+.exp-panels{}
+.exp-panel{display:none;}
+.exp-panel.on{display:block;}
+.ep-role{font-family:'Bebas Neue';font-size:40px;letter-spacing:2px;margin-bottom:4px;}
+.ep-co{font-family:'JetBrains Mono';font-size:11px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:12px;}
+.ep-meta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:36px;}
+.ep-badge{font-family:'JetBrains Mono';font-size:10px;letter-spacing:1px;color:var(--dim);padding:6px 14px;border:1px solid var(--border);}
+.ep-list{list-style:none;}
+.ep-list li{padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:15px;color:#4a5878;line-height:1.7;display:flex;gap:14px;align-items:flex-start;transition:color .3s;}
+.ep-list li:hover{color:#8899aa;}
+.ep-list li::before{content:'▸';color:var(--cyan);flex-shrink:0;margin-top:4px;font-size:11px;}
+.ep-hi{color:var(--cyan);font-weight:600;}
 
-  .skills-canvas-wrap {
-    position: relative;
-    margin-bottom: 60px;
-  }
+/* PROJECTS */
+.proj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;}
+.proj-card{position:relative;padding:44px;background:var(--glass);border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:all .5s cubic-bezier(.23,1,.32,1);}
+.proj-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at var(--px,50%) var(--py,50%),rgba(0,245,255,0.06),transparent 55%);opacity:0;transition:opacity .4s;}
+.proj-card:hover::before{opacity:1;}
+.proj-card:hover{border-color:rgba(0,245,255,0.35);transform:translateY(-5px);box-shadow:0 30px 60px rgba(0,0,0,0.4);}
+.proj-card.big{grid-column:span 2;}
+.proj-num{font-family:'Bebas Neue';font-size:90px;color:rgba(255,255,255,0.03);line-height:1;margin-bottom:-10px;transition:color .4s;}
+.proj-card:hover .proj-num{color:rgba(0,245,255,0.07);}
+.proj-title{font-family:'Bebas Neue';font-size:26px;letter-spacing:2px;margin-bottom:14px;line-height:1.2;}
+.proj-card.big .proj-title{font-size:34px;}
+.proj-desc{font-size:13px;color:#3a4560;line-height:1.8;margin-bottom:24px;}
+.proj-pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:24px;}
+.proj-pill{font-family:'JetBrains Mono';font-size:9px;letter-spacing:1px;padding:4px 10px;border:1px solid rgba(0,245,255,0.2);color:var(--cyan);border-radius:1px;}
+.proj-link{font-family:'JetBrains Mono';font-size:10px;letter-spacing:2px;color:var(--dim);display:inline-flex;align-items:center;gap:8px;transition:color .3s;text-decoration:none;}
+.proj-link:hover{color:var(--cyan);}
+.proj-arr{display:inline-block;transition:transform .3s;}
+.proj-card:hover .proj-arr{transform:translate(5px,-5px);}
 
-  #skills-canvas {
-    width: 100%;
-    height: 200px;
-    display: block;
-  }
+/* CONTACT */
+.contact-wrap{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+.contact-big{font-family:'Bebas Neue';font-size:clamp(60px,8vw,120px);line-height:.9;margin-bottom:24px;}
+.contact-big .hollow{-webkit-text-stroke:1px rgba(255,255,255,0.12);color:transparent;display:block;}
+.contact-sub{font-size:15px;color:#3a4560;line-height:1.9;margin-bottom:48px;}
+.contact-list{display:flex;flex-direction:column;gap:12px;}
+.c-link{display:flex;align-items:center;gap:20px;padding:20px 28px;border:1px solid var(--border);background:var(--glass);backdrop-filter:blur(10px);text-decoration:none;color:var(--white);transition:all .3s;}
+.c-link:hover{border-color:var(--cyan);background:rgba(0,245,255,0.04);transform:translateX(6px);}
+.c-ico{font-size:22px;width:36px;text-align:center;}
+.c-lbl{font-family:'JetBrains Mono';font-size:9px;letter-spacing:3px;color:var(--dim);text-transform:uppercase;}
+.c-val{font-size:15px;font-weight:700;margin-top:3px;}
+.contact-visual{position:relative;aspect-ratio:1;border:1px solid var(--border);background:var(--glass);overflow:hidden;}
+#ccanvas{width:100%;height:100%;display:block;}
 
-  .skills-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2px;
-  }
+/* FOOTER */
+.footer{position:relative;z-index:20;padding:32px 8vw;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.footer span,.footer a{font-family:'JetBrains Mono';font-size:10px;letter-spacing:2px;color:var(--dim);text-decoration:none;transition:color .3s;}
+.footer a:hover{color:var(--cyan);}
 
-  .skill-category {
-    padding: 40px;
-    background: var(--glass);
-    border: 1px solid var(--border);
-    backdrop-filter: blur(10px);
-    transition: all 0.4s;
-    position: relative;
-    overflow: hidden;
-  }
-  .skill-category::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(to right, var(--cyan), transparent);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.4s;
-  }
-  .skill-category:hover::before { transform: scaleX(1); }
-  .skill-category:hover {
-    background: rgba(0,229,255,0.04);
-    border-color: rgba(0,229,255,0.3);
-  }
+/* ANIMS */
+@keyframes fu{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+.rv{opacity:0;transform:translateY(48px);transition:opacity .9s cubic-bezier(.23,1,.32,1),transform .9s cubic-bezier(.23,1,.32,1);}
+.rv.vi{opacity:1;transform:none;}
 
-  .skill-cat-title {
-    font-family: 'Bebas Neue', cursive;
-    font-size: 22px;
-    letter-spacing: 2px;
-    color: var(--cyan);
-    margin-bottom: 20px;
-  }
+/* GLOW DIVIDERS */
+.gd{height:1px;background:linear-gradient(90deg,transparent,var(--cyan),var(--purple),transparent);opacity:.2;position:relative;z-index:20;}
 
-  .skill-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .skill-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    padding: 6px 14px;
-    border: 1px solid rgba(255,255,255,0.08);
-    color: #8892a4;
-    border-radius: 2px;
-    transition: all 0.3s;
-  }
-  .skill-tag:hover {
-    border-color: var(--cyan);
-    color: var(--cyan);
-    background: rgba(0,229,255,0.05);
-  }
+/* 3D CANVAS SECTION OVERLAYS - glass panels that appear over 3D */
+.glass-panel{background:rgba(1,2,8,0.7);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);}
 
-  /* EXPERIENCE */
-  #experience {
-    padding: 120px 60px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .timeline {
-    position: relative;
-    padding-left: 40px;
-  }
-  .timeline::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 1px;
-    background: linear-gradient(to bottom, var(--cyan), transparent);
-  }
-
-  .timeline-item {
-    position: relative;
-    margin-bottom: 60px;
-    padding: 40px;
-    background: var(--glass);
-    border: 1px solid var(--border);
-    backdrop-filter: blur(10px);
-    transition: all 0.4s;
-  }
-  .timeline-item::before {
-    content: '';
-    position: absolute;
-    left: -46px; top: 44px;
-    width: 12px; height: 12px;
-    background: var(--cyan);
-    border-radius: 50%;
-    box-shadow: 0 0 20px rgba(0,229,255,0.6);
-  }
-  .timeline-item:hover {
-    border-color: rgba(0,229,255,0.3);
-    background: rgba(0,229,255,0.03);
-    transform: translateX(4px);
-  }
-
-  .job-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 8px;
-  }
-  .job-title {
-    font-family: 'Bebas Neue', cursive;
-    font-size: 28px;
-    letter-spacing: 2px;
-    color: var(--white);
-  }
-  .job-date {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--cyan);
-    letter-spacing: 2px;
-    padding: 6px 14px;
-    border: 1px solid var(--border);
-    white-space: nowrap;
-  }
-  .job-company {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: var(--gold);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-bottom: 24px;
-  }
-  .job-points { list-style: none; }
-  .job-points li {
-    font-size: 15px;
-    color: #8892a4;
-    line-height: 1.7;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    display: flex;
-    gap: 12px;
-  }
-  .job-points li::before {
-    content: '▸';
-    color: var(--cyan);
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-
-  /* PROJECTS */
-  #projects {
-    padding: 120px 60px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .projects-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2px;
-  }
-
-  .project-card {
-    position: relative;
-    height: 400px;
-    overflow: hidden;
-    background: var(--glass);
-    border: 1px solid var(--border);
-    cursor: pointer;
-    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-  }
-  .project-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(0,229,255,0.05), transparent);
-    opacity: 0;
-    transition: opacity 0.4s;
-  }
-  .project-card:hover { border-color: rgba(0,229,255,0.4); transform: translateY(-4px); }
-  .project-card:hover::after { opacity: 1; }
-
-  .project-inner {
-    padding: 40px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  .project-num {
-    font-family: 'Bebas Neue', cursive;
-    font-size: 80px;
-    color: rgba(0,229,255,0.08);
-    line-height: 1;
-    transition: color 0.4s;
-  }
-  .project-card:hover .project-num { color: rgba(0,229,255,0.15); }
-
-  .project-title {
-    font-family: 'Bebas Neue', cursive;
-    font-size: 24px;
-    letter-spacing: 2px;
-    color: var(--white);
-    margin-bottom: 12px;
-  }
-  .project-desc {
-    font-size: 13px;
-    color: var(--muted);
-    line-height: 1.7;
-    flex: 1;
-    margin-bottom: 24px;
-  }
-  .project-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-  .project-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--cyan);
-    border: 1px solid rgba(0,229,255,0.3);
-    padding: 4px 10px;
-    border-radius: 2px;
-  }
-  .project-arrow {
-    position: absolute;
-    top: 30px; right: 30px;
-    font-size: 20px;
-    color: var(--muted);
-    transition: all 0.3s;
-    transform: rotate(45deg);
-  }
-  .project-card:hover .project-arrow { color: var(--cyan); transform: rotate(45deg) translate(4px,-4px); }
-
-  /* CONTACT */
-  #contact {
-    padding: 120px 60px;
-    max-width: 900px;
-    margin: 0 auto;
-    text-align: center;
-  }
-
-  .contact-headline {
-    font-family: 'Bebas Neue', cursive;
-    font-size: clamp(50px, 8vw, 100px);
-    line-height: 1;
-    background: linear-gradient(135deg, #ffffff, #4a5568);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 20px;
-  }
-  .contact-sub {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    color: var(--muted);
-    letter-spacing: 2px;
-    margin-bottom: 60px;
-  }
-
-  .contact-links {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-  .contact-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 18px 36px;
-    border: 1px solid var(--border);
-    background: var(--glass);
-    backdrop-filter: blur(10px);
-    color: var(--white);
-    text-decoration: none;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    letter-spacing: 2px;
-    transition: all 0.3s;
-  }
-  .contact-link:hover {
-    border-color: var(--cyan);
-    color: var(--cyan);
-    background: rgba(0,229,255,0.05);
-    transform: translateY(-2px);
-    box-shadow: 0 20px 40px rgba(0,229,255,0.1);
-  }
-  .contact-link.primary {
-    background: var(--cyan);
-    color: #000;
-    border-color: var(--cyan);
-    font-weight: 500;
-  }
-  .contact-link.primary:hover {
-    background: transparent;
-    color: var(--cyan);
-  }
-
-  /* FOOTER */
-  footer {
-    padding: 40px 60px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-    z-index: 10;
-  }
-  footer span {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 2px;
-  }
-
-  /* ANIMATIONS */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
-  }
-  @keyframes scrollPulse {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 1; }
-  }
-
-  .reveal {
-    opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 0.8s cubic-bezier(0.23,1,0.32,1), transform 0.8s cubic-bezier(0.23,1,0.32,1);
-  }
-  .reveal.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  /* SCANLINE OVERLAY */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.03) 2px,
-      rgba(0,0,0,0.03) 4px
-    );
-    pointer-events: none;
-    z-index: 5;
-  }
-
-  @media (max-width: 768px) {
-    nav { padding: 20px 24px; }
-    .nav-links { display: none; }
-    #about, #skills, #experience, #projects, #contact { padding: 80px 24px; }
-    .about-grid { grid-template-columns: 1fr; gap: 40px; }
-    .skills-grid { grid-template-columns: 1fr; }
-    .projects-grid { grid-template-columns: 1fr; }
-    footer { flex-direction: column; gap: 12px; text-align: center; }
-  }
+@media(max-width:900px){
+  #hud{padding:20px 24px;}
+  .hud-nav{display:none;}
+  .hero-h1{font-size:clamp(60px,16vw,120px);}
+  .about-grid,.contact-wrap,.exp-wrap{grid-template-columns:1fr;}
+  .proj-grid{grid-template-columns:1fr;}
+  .proj-card.big{grid-column:span 1;}
+  .sk-grid{grid-template-columns:1fr;}
+  .sec{padding:80px 6vw;}
+}
 </style>
 </head>
 <body>
 
-<!-- CURSOR -->
-<div id="cursor"></div>
-<div id="cursor-trail"></div>
+<div id="cur"></div>
+<div id="cur2"></div>
+<div id="prog"></div>
 
-<!-- CANVAS BG -->
-<canvas id="hero-canvas"></canvas>
+<!-- LOADER -->
+<div id="loader">
+  <div class="l-num" id="lnum">0</div>
+  <div class="l-title">PAVAN KRISHNA</div>
+  <div class="l-sub">Initializing Portfolio Experience</div>
+  <div class="l-track"><div class="l-fill" id="lfill"></div></div>
+</div>
 
-<!-- NAV -->
-<nav>
-  <div class="nav-logo">PK</div>
-  <div class="nav-links">
+<!-- FIXED 3D CANVAS -->
+<canvas id="c"></canvas>
+
+<!-- HUD -->
+<div id="hud">
+  <div class="hud-logo">PK</div>
+  <div class="hud-nav">
     <a href="#about">About</a>
     <a href="#skills">Skills</a>
     <a href="#experience">Experience</a>
     <a href="#projects">Projects</a>
     <a href="#contact">Contact</a>
   </div>
-</nav>
-
-<!-- HERO -->
-<section id="hero">
-  <div class="hero-eyebrow">[ Available for opportunities ]</div>
-  <div class="hero-name">Pavan<br>Krishna</div>
-  <div class="hero-title">Data-Focused Software Engineer</div>
-  <div class="hero-badge">
-    <div class="pulse-dot"></div>
-    3+ Years · Java · Kafka · AWS · Python · SQL
+  <div class="hud-right">
+    <div class="hud-dot"></div>
+    <div class="hud-status">Available for work</div>
   </div>
-  <div class="hero-scroll">
-    <div class="scroll-line"></div>
-    Scroll
-  </div>
-</section>
+</div>
 
-<!-- ABOUT -->
-<section id="about">
-  <div class="section-label">01 &nbsp; About</div>
-  <div class="about-grid">
-    <div class="about-bio reveal">
-      <p>Data-focused Software Engineer with <strong>3+ years of experience</strong> building scalable, event-driven systems and real-time data pipelines.</p>
-      <br>
-      <p>Skilled in designing <strong>ETL workflows</strong>, processing streaming data, and developing <strong>cloud-native microservices</strong> that support analytics and enterprise reporting.</p>
-      <br>
-      <p>Passionate about transforming raw data into <strong>reliable, real-time datasets</strong> that power intelligent decision-making across large-scale organizations.</p>
-      <br>
-      <p style="color: #4a5568; font-family: 'JetBrains Mono'; font-size: 12px; letter-spacing: 1px;">📍 Tupelo, MS &nbsp;|&nbsp; 📞 773-726-1680 &nbsp;|&nbsp; ✉ pavankrishna310@gmail.com</p>
-    </div>
-    <div class="reveal" style="transition-delay: 0.2s;">
-      <div class="stats-grid">
-        <div class="stat-box">
-          <div class="stat-num">3+</div>
-          <div class="stat-label">Years Experience</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-num">10+</div>
-          <div class="stat-label">Technologies</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-num">30%</div>
-          <div class="stat-label">Query Perf. Gain</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-num">M.S.</div>
-          <div class="stat-label">Computer Science</div>
+<!-- SCROLL CONTENT -->
+<div id="scroll-wrap">
+
+  <!-- HERO -->
+  <section id="hero" style="position:relative;z-index:20;">
+    <div class="hero-wrap">
+      <div class="hero-pre">[ Data Engineer · Full Stack · AWS · Kafka ]</div>
+      <h1 class="hero-h1">PAVAN<br><span class="outline">KRISHNA</span></h1>
+      <div class="hero-row">
+        <div class="hero-desc">Data-focused Software Engineer with <strong>3+ years</strong> building scalable, event-driven systems and real-time data pipelines at enterprise scale.</div>
+        <div class="hero-vline"></div>
+        <div class="hero-meta">
+          <span><strong>773.726.1680</strong></span>
+          <span><strong>pavankrishna310@gmail.com</strong></span>
+          <span>Tupelo, MS · Open to Remote</span>
         </div>
       </div>
+      <div class="hero-chips">
+        <div class="chip on">Open to Work</div>
+        <div class="chip">Java · Spring Boot</div>
+        <div class="chip">Apache Kafka</div>
+        <div class="chip">AWS Cloud</div>
+        <div class="chip">ETL Pipelines</div>
+        <div class="chip">M.S. CS · 2024</div>
+      </div>
+      <div class="scroll-cue">
+        <div class="scroll-cue-line"></div>
+        <div class="scroll-cue-txt">Scroll</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-strip" style="position:relative;z-index:20;">
+    <div class="mqrow" id="mq1">
+      <div class="mqitem">Apache Kafka</div><div class="mqitem">Real-Time Pipelines</div><div class="mqitem">Spring Boot</div><div class="mqitem">AWS Cloud</div><div class="mqitem">ETL Development</div><div class="mqitem">Apache Spark</div><div class="mqitem">Microservices</div><div class="mqitem">SQL Optimization</div><div class="mqitem">Apache Kafka</div><div class="mqitem">Real-Time Pipelines</div><div class="mqitem">Spring Boot</div><div class="mqitem">AWS Cloud</div><div class="mqitem">ETL Development</div><div class="mqitem">Apache Spark</div><div class="mqitem">Microservices</div><div class="mqitem">SQL Optimization</div>
     </div>
   </div>
-</section>
 
-<!-- SKILLS -->
-<section id="skills">
-  <div class="section-label">02 &nbsp; Skills</div>
-  <canvas id="skills-canvas"></canvas>
-  <div class="skills-grid">
-    <div class="skill-category reveal">
-      <div class="skill-cat-title">Languages</div>
-      <div class="skill-tags">
-        <span class="skill-tag">Java 8/11/17</span>
-        <span class="skill-tag">Python</span>
-        <span class="skill-tag">SQL</span>
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="sec glass-panel">
+      <div class="s-head rv">
+        <div class="s-num">01</div>
+        <div class="s-titles"><div class="s-tag">// Who I Am</div><div class="s-name">About Me</div></div>
       </div>
-    </div>
-    <div class="skill-category reveal" style="transition-delay:0.1s">
-      <div class="skill-cat-title">Data & Streaming</div>
-      <div class="skill-tags">
-        <span class="skill-tag">Apache Kafka</span>
-        <span class="skill-tag">RabbitMQ</span>
-        <span class="skill-tag">ETL Pipelines</span>
-        <span class="skill-tag">Apache Spark</span>
-        <span class="skill-tag">Airflow</span>
-        <span class="skill-tag">Apache Flink</span>
-      </div>
-    </div>
-    <div class="skill-category reveal" style="transition-delay:0.2s">
-      <div class="skill-cat-title">Cloud & Infra</div>
-      <div class="skill-tags">
-        <span class="skill-tag">AWS EC2</span>
-        <span class="skill-tag">S3</span>
-        <span class="skill-tag">Lambda</span>
-        <span class="skill-tag">DynamoDB</span>
-        <span class="skill-tag">Redshift</span>
-        <span class="skill-tag">GCP</span>
-        <span class="skill-tag">Terraform</span>
-      </div>
-    </div>
-    <div class="skill-category reveal" style="transition-delay:0.3s">
-      <div class="skill-cat-title">Backend</div>
-      <div class="skill-tags">
-        <span class="skill-tag">Spring Boot</span>
-        <span class="skill-tag">Microservices</span>
-        <span class="skill-tag">REST APIs</span>
-        <span class="skill-tag">GraphQL</span>
-        <span class="skill-tag">Hibernate</span>
-        <span class="skill-tag">JPA</span>
-      </div>
-    </div>
-    <div class="skill-category reveal" style="transition-delay:0.4s">
-      <div class="skill-cat-title">Databases</div>
-      <div class="skill-tags">
-        <span class="skill-tag">PostgreSQL</span>
-        <span class="skill-tag">Oracle</span>
-        <span class="skill-tag">MongoDB</span>
-        <span class="skill-tag">MySQL</span>
-        <span class="skill-tag">DB2</span>
-        <span class="skill-tag">Apache Trino</span>
-      </div>
-    </div>
-    <div class="skill-category reveal" style="transition-delay:0.5s">
-      <div class="skill-cat-title">DevOps</div>
-      <div class="skill-tags">
-        <span class="skill-tag">CI/CD</span>
-        <span class="skill-tag">Jenkins</span>
-        <span class="skill-tag">Docker</span>
-        <span class="skill-tag">Git</span>
-        <span class="skill-tag">Agile/Scrum</span>
-        <span class="skill-tag">TDD</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- EXPERIENCE -->
-<section id="experience">
-  <div class="section-label">03 &nbsp; Experience</div>
-  <div class="timeline">
-
-    <div class="timeline-item reveal">
-      <div class="job-header">
-        <div>
-          <div class="job-title">Full Stack Software Engineer</div>
-          <div class="job-company">Renasant Bank · Tupelo, MS</div>
+      <div class="about-grid">
+        <div class="rv">
+          <p class="about-p">Data-focused Software Engineer with <strong>3+ years</strong> of experience building <em>scalable, event-driven systems</em> and real-time data pipelines using Java, Python, SQL, Kafka, and AWS cloud platforms.</p>
+          <p class="about-p">Skilled in designing <strong>ETL workflows</strong>, processing streaming data, and developing cloud-native microservices that support analytics and enterprise reporting across distributed systems.</p>
+          <p class="about-p">Strong foundation in <em>data modeling</em>, distributed systems, and performance optimization — passionate about transforming raw data into reliable, real-time datasets that power intelligent decision-making.</p>
+          <div class="edu-stack">
+            <div class="edu-card">
+              <div><div class="edu-deg">Master of Science — Computer Science</div><div class="edu-sch">Roosevelt University · Chicago, IL</div></div>
+              <div class="edu-yr">2024</div>
+            </div>
+            <div class="edu-card">
+              <div><div class="edu-deg">Bachelor of Technology — Computer Science</div><div class="edu-sch">Hindustan Institute of Technology & Science</div></div>
+              <div class="edu-yr">2022</div>
+            </div>
+          </div>
         </div>
-        <div class="job-date">Jan 2025 — Present</div>
-      </div>
-      <ul class="job-points">
-        <li>Built REST and GraphQL APIs enabling structured data ingestion, transformation, and integration across enterprise systems.</li>
-        <li>Implemented event-driven microservices using Apache Kafka to process high-volume real-time transaction events across distributed systems.</li>
-        <li>Developed and optimized SQL-based data transformation workflows improving reporting query performance by <strong style="color: var(--cyan)">30%</strong>.</li>
-        <li>Deployed and supported AWS-based infrastructure (EC2, S3) for scalable application and data processing workloads.</li>
-        <li>Contributed to CI/CD automation, unit testing (JUnit), and cross-team Agile collaboration.</li>
-      </ul>
-    </div>
-
-    <div class="timeline-item reveal" style="transition-delay:0.2s">
-      <div class="job-header">
-        <div>
-          <div class="job-title">Software Engineer</div>
-          <div class="job-company">Wipro Limited · India</div>
-        </div>
-        <div class="job-date">Jun 2021 — Sep 2023</div>
-      </div>
-      <ul class="job-points">
-        <li>Developed and maintained microservices-based backend systems using Java and Spring Boot supporting high-volume retail transaction processing.</li>
-        <li>Built RESTful APIs and data services using Spring MVC, JPA, and Hibernate for structured data processing and integration workflows.</li>
-        <li>Designed and optimized complex SQL queries and stored procedures for high-volume data processing and enterprise reporting.</li>
-        <li>Contributed to event-driven system components using Kafka for asynchronous communication and log processing.</li>
-        <li>Deployed and containerized applications using Docker with CI/CD automation via Jenkins in cloud-based environments.</li>
-        <li>Applied dimensional modeling principles to structure reporting datasets supporting business intelligence use cases.</li>
-      </ul>
-    </div>
-
-  </div>
-</section>
-
-<!-- PROJECTS -->
-<section id="projects">
-  <div class="section-label">04 &nbsp; Projects</div>
-  <div class="projects-grid">
-
-    <div class="project-card reveal">
-      <div class="project-inner">
-        <div class="project-num">01</div>
-        <div>
-          <div class="project-title">Enterprise Rail Freight Data Platform</div>
-          <div class="project-desc">Real-time freight shipment data platform using Apache Kafka and Spark Structured Streaming. Scalable ETL pipelines with dimensional modeling and lakehouse architecture.</div>
-          <div class="project-tags">
-            <span class="project-tag">Kafka</span>
-            <span class="project-tag">Spark</span>
-            <span class="project-tag">Airflow</span>
-            <span class="project-tag">Iceberg</span>
-            <span class="project-tag">Trino</span>
+        <div class="rv" style="transition-delay:.2s">
+          <div class="metrics">
+            <div class="met"><div class="met-v">3+</div><div class="met-l">Years Experience</div></div>
+            <div class="met"><div class="met-v">30%</div><div class="met-l">Query Performance Gain</div></div>
+            <div class="met"><div class="met-v">10+</div><div class="met-l">Core Technologies</div></div>
+            <div class="met"><div class="met-v">M.S.</div><div class="met-l">Computer Science</div></div>
           </div>
         </div>
       </div>
-      <div class="project-arrow">↗</div>
     </div>
+  </section>
+  <div class="gd"></div>
 
-    <div class="project-card reveal" style="transition-delay:0.15s">
-      <div class="project-inner">
-        <div class="project-num">02</div>
-        <div>
-          <div class="project-title">Real-Time Payment Fraud Detection</div>
-          <div class="project-desc">Fraud detection platform ingesting high-volume payment transactions via Kafka & Spark Streaming. Computes fraud risk scores and publishes certified datasets for monitoring.</div>
-          <div class="project-tags">
-            <span class="project-tag">Kafka</span>
-            <span class="project-tag">Spark</span>
-            <span class="project-tag">Delta Lake</span>
-            <span class="project-tag">Airflow</span>
-            <span class="project-tag">Trino</span>
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="sec glass-panel">
+      <div class="s-head rv">
+        <div class="s-num">02</div>
+        <div class="s-titles"><div class="s-tag">// Technical Arsenal</div><div class="s-name">Skills</div></div>
+      </div>
+      <div class="sk-grid">
+        <div class="sk-row rv" data-pct="92" data-c="#00f5ff">
+          <div class="sk-top"><span class="sk-name">Java / Backend</span><span class="sk-pct">92%</span></div>
+          <div class="sk-track"><div class="sk-fill" style="background:#00f5ff;color:#00f5ff;"></div></div>
+          <div class="sk-tags"><span class="sk-tag">Java 8/11/17</span><span class="sk-tag">Spring Boot</span><span class="sk-tag">Microservices</span><span class="sk-tag">REST APIs</span><span class="sk-tag">GraphQL</span><span class="sk-tag">Hibernate</span></div>
+        </div>
+        <div class="sk-row rv" data-pct="90" data-c="#ffcc00" style="transition-delay:.08s">
+          <div class="sk-top"><span class="sk-name">SQL / Data Modeling</span><span class="sk-pct">90%</span></div>
+          <div class="sk-track"><div class="sk-fill" style="background:#ffcc00;color:#ffcc00;"></div></div>
+          <div class="sk-tags"><span class="sk-tag">PostgreSQL</span><span class="sk-tag">Oracle</span><span class="sk-tag">Star Schema</span><span class="sk-tag">Dimensional Modeling</span><span class="sk-tag">Stored Procs</span></div>
+        </div>
+        <div class="sk-row rv" data-pct="88" data-c="#ff2055" style="transition-delay:.16s">
+          <div class="sk-top"><span class="sk-name">Data Engineering / ETL</span><span class="sk-pct">88%</span></div>
+          <div class="sk-track"><div class="sk-fill" style="background:#ff2055;color:#ff2055;"></div></div>
+          <div class="sk-tags"><span class="sk-tag">Apache Kafka</span><span class="sk-tag">RabbitMQ</span><span class="sk-tag">ETL Pipelines</span><span class="sk-tag">Airflow</span><span class="sk-tag">Batch Processing</span></div>
+        </div>
+        <div class="sk-row rv" data-pct="85" data-c="#00ff88" style="transition-delay:.24s">
+          <div class="sk-top"><span class="sk-name">Cloud / AWS</span><span class="sk-pct">85%</span></div>
+          <div class="sk-track"><div class="sk-fill" style="background:#00ff88;color:#00ff88;"></div></div>
+          <div class="sk-tags"><span class="sk-tag">EC2</span><span class="sk-tag">S3</span><span class="sk-tag">Lambda</span><span class="sk-tag">DynamoDB</span><span class="sk-tag">Redshift</span><span class="sk-tag">API Gateway</span></div>
+        </div>
+        <div class="sk-row rv" data-pct="83" data-c="#c044ff" style="transition-delay:.32s">
+          <div class="sk-top"><span class="sk-name">Streaming / Lakehouse</span><span class="sk-pct">83%</span></div>
+          <div class="sk-track"><div class="sk-fill" style="background:#c044ff;color:#c044ff;"></div></div>
+          <div class="sk-tags"><span class="sk-tag">Apache Spark</span><span class="sk-tag">Spark Streaming</span><span class="sk-tag">Apache Iceberg</span><span class="sk-tag">Delta Lake</span><span class="sk-tag">Trino</span></div>
+        </div>
+        <div class="sk-row rv" data-pct="78" data-c="#00f5ff" style="transition-delay:.4s">
+          <div class="sk-top"><span class="sk-name">Python / DevOps</span><span class="sk-pct">78%</span></div>
+          <div class="sk-track"><div class="sk-fill" style="background:#00f5ff;color:#00f5ff;"></div></div>
+          <div class="sk-tags"><span class="sk-tag">Python</span><span class="sk-tag">Docker</span><span class="sk-tag">Jenkins</span><span class="sk-tag">CI/CD</span><span class="sk-tag">Git</span><span class="sk-tag">Terraform</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="gd"></div>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <div class="sec glass-panel">
+      <div class="s-head rv">
+        <div class="s-num">03</div>
+        <div class="s-titles"><div class="s-tag">// Work History</div><div class="s-name">Experience</div></div>
+      </div>
+      <div class="exp-wrap">
+        <div class="exp-tabs rv">
+          <div class="exp-tab on" data-p="renasant">
+            <div class="exp-tc">Renasant Bank</div>
+            <div class="exp-tp">Jan 2025 — Present</div>
+          </div>
+          <div class="exp-tab" data-p="wipro">
+            <div class="exp-tc">Wipro Limited</div>
+            <div class="exp-tp">Jun 2021 — Sep 2023</div>
+          </div>
+        </div>
+        <div class="exp-panels rv" style="transition-delay:.2s">
+          <div class="exp-panel on" id="p-renasant">
+            <div class="ep-role">Full Stack Software Engineer</div>
+            <div class="ep-co">Renasant Bank</div>
+            <div class="ep-meta">
+              <span class="ep-badge">📍 Tupelo, MS</span>
+              <span class="ep-badge">Jan 2025 — Present</span>
+              <span class="ep-badge" style="border-color:rgba(0,255,136,.3);color:var(--green);">● Current Role</span>
+            </div>
+            <ul class="ep-list">
+              <li>Built REST and GraphQL APIs enabling structured <span class="ep-hi">data ingestion</span>, transformation, and integration across enterprise banking systems.</li>
+              <li>Implemented event-driven microservices using <span class="ep-hi">Apache Kafka</span> to process high-volume real-time transaction events across distributed systems.</li>
+              <li>Developed and optimized SQL-based data transformation workflows improving reporting query performance by <span class="ep-hi">30%</span>.</li>
+              <li>Deployed and supported <span class="ep-hi">AWS infrastructure</span> (EC2, S3) for scalable application and data processing workloads.</li>
+              <li>Designed data integration workflows consolidating transactional data into analytics-ready datasets for downstream reporting systems.</li>
+              <li>Contributed to CI/CD automation, JUnit unit testing, and cross-team Agile collaboration.</li>
+            </ul>
+          </div>
+          <div class="exp-panel" id="p-wipro">
+            <div class="ep-role">Software Engineer</div>
+            <div class="ep-co">Wipro Limited</div>
+            <div class="ep-meta">
+              <span class="ep-badge">📍 India</span>
+              <span class="ep-badge">Jun 2021 — Sep 2023</span>
+            </div>
+            <ul class="ep-list">
+              <li>Developed microservices-based backend systems using <span class="ep-hi">Java and Spring Boot</span> for high-volume retail transaction processing.</li>
+              <li>Built RESTful APIs using Spring MVC, JPA, and Hibernate supporting structured data processing and integration workflows.</li>
+              <li>Designed and optimized complex SQL queries and stored procedures for high-volume data and enterprise reporting.</li>
+              <li>Contributed event-driven components using <span class="ep-hi">Kafka</span> for asynchronous communication and log processing.</li>
+              <li>Containerized applications with <span class="ep-hi">Docker</span>; supported CI/CD automation via Jenkins in cloud environments.</li>
+              <li>Applied dimensional modeling to structure reporting datasets supporting BI and analytics use cases.</li>
+            </ul>
           </div>
         </div>
       </div>
-      <div class="project-arrow">↗</div>
     </div>
+  </section>
+  <div class="gd"></div>
 
-    <div class="project-card reveal" style="transition-delay:0.3s">
-      <div class="project-inner">
-        <div class="project-num">03</div>
-        <div>
-          <div class="project-title">AI-Powered Developer Assistance Platform</div>
-          <div class="project-desc">Intelligent developer assistance platform with streaming data pipelines, real-time analytics, and lakehouse integration for scalable querying and enterprise reporting.</div>
-          <div class="project-tags">
-            <span class="project-tag">Python</span>
-            <span class="project-tag">Kafka</span>
-            <span class="project-tag">Iceberg</span>
-            <span class="project-tag">Airflow</span>
-            <span class="project-tag">AWS</span>
-          </div>
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="sec glass-panel">
+      <div class="s-head rv">
+        <div class="s-num">04</div>
+        <div class="s-titles"><div class="s-tag">// Selected Work</div><div class="s-name">Projects</div></div>
+      </div>
+      <div class="proj-grid">
+        <div class="proj-card big rv" id="pc1">
+          <div class="proj-num">01</div>
+          <div class="proj-title">Enterprise Rail Freight Data Platform</div>
+          <div class="proj-desc">Real-time freight shipment data platform using Apache Kafka and Spark Structured Streaming for high-volume event ingestion. Built scalable ETL pipelines with Apache Airflow publishing certified datasets. Implemented Star Schema dimensional modeling with Apache Iceberg / Delta Lake lakehouse technologies for analytics-ready access via Apache Trino.</div>
+          <div class="proj-pills"><span class="proj-pill">Kafka</span><span class="proj-pill">Spark Streaming</span><span class="proj-pill">Airflow</span><span class="proj-pill">Apache Iceberg</span><span class="proj-pill">Delta Lake</span><span class="proj-pill">Trino</span><span class="proj-pill">Star Schema</span></div>
+          <a href="#" class="proj-link">View Project <span class="proj-arr">↗</span></a>
+        </div>
+        <div class="proj-card rv" id="pc2" style="transition-delay:.15s">
+          <div class="proj-num">02</div>
+          <div class="proj-title">Real-Time Payment Fraud Detection</div>
+          <div class="proj-desc">Fraud detection platform ingesting payment transactions via Kafka & Spark Streaming, computing real-time fraud risk scores, and publishing certified datasets for enterprise monitoring.</div>
+          <div class="proj-pills"><span class="proj-pill">Kafka</span><span class="proj-pill">Spark</span><span class="proj-pill">Airflow</span><span class="proj-pill">Delta Lake</span><span class="proj-pill">Trino</span></div>
+          <a href="#" class="proj-link">View Project <span class="proj-arr">↗</span></a>
+        </div>
+        <div class="proj-card rv" id="pc3" style="transition-delay:.3s">
+          <div class="proj-num">03</div>
+          <div class="proj-title">AI-Powered Developer Assistance Platform</div>
+          <div class="proj-desc">Intelligent assistance platform with streaming pipelines, lakehouse integration for scalable querying, and Airflow-orchestrated enterprise analytics reporting.</div>
+          <div class="proj-pills"><span class="proj-pill">Python</span><span class="proj-pill">Kafka</span><span class="proj-pill">Iceberg</span><span class="proj-pill">Airflow</span><span class="proj-pill">AWS</span></div>
+          <a href="#" class="proj-link">View Project <span class="proj-arr">↗</span></a>
         </div>
       </div>
-      <div class="project-arrow">↗</div>
     </div>
+  </section>
+  <div class="gd"></div>
 
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="sec glass-panel">
+      <div class="contact-wrap">
+        <div class="rv">
+          <div class="contact-big">LET'S<br><span class="hollow">BUILD</span>GREAT THINGS</div>
+          <p class="contact-sub">Open to data engineering, backend, and full-stack roles. Let's create something that matters at scale.</p>
+          <div class="contact-list">
+            <a href="mailto:pavankrishna310@gmail.com" class="c-link"><div class="c-ico">✉</div><div><div class="c-lbl">Email</div><div class="c-val">pavankrishna310@gmail.com</div></div></a>
+            <a href="tel:+17737261680" class="c-link"><div class="c-ico">📞</div><div><div class="c-lbl">Phone</div><div class="c-val">(773) 726-1680</div></div></a>
+            <a href="#" class="c-link"><div class="c-ico">💼</div><div><div class="c-lbl">LinkedIn</div><div class="c-val">linkedin.com/in/pavankrishna</div></div></a>
+            <a href="#" class="c-link"><div class="c-ico">⌨</div><div><div class="c-lbl">GitHub</div><div class="c-val">github.com/moto123a</div></div></a>
+          </div>
+        </div>
+        <div class="rv" style="transition-delay:.2s">
+          <div class="contact-visual"><canvas id="ccanvas"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <div class="footer" style="position:relative;z-index:20;">
+    <span>© 2025 PAVAN KRISHNA · DATA ENGINEER</span>
+    <div style="display:flex;gap:24px;">
+      <a href="mailto:pavankrishna310@gmail.com">Email</a>
+      <a href="#">LinkedIn</a>
+      <a href="#">GitHub</a>
+    </div>
   </div>
-</section>
 
-<!-- CONTACT -->
-<section id="contact">
-  <div class="contact-headline reveal">Let's Build<br>Together</div>
-  <div class="contact-sub reveal" style="transition-delay:0.15s">Open to data engineering, backend, and full-stack roles</div>
-  <div class="contact-links reveal" style="transition-delay:0.3s">
-    <a href="mailto:pavankrishna310@gmail.com" class="contact-link primary">✉ &nbsp; pavankrishna310@gmail.com</a>
-    <a href="tel:+17737261680" class="contact-link">📞 &nbsp; (773) 726-1680</a>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <span>© 2025 Pavan Krishna</span>
-  <span>Software Engineer · MS Computer Science · Roosevelt University</span>
-</footer>
+</div><!-- end scroll-wrap -->
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-// ===== CURSOR =====
-const cursor = document.getElementById('cursor');
-const trail = document.getElementById('cursor-trail');
-let mx = 0, my = 0;
-document.addEventListener('mousemove', e => {
-  mx = e.clientX; my = e.clientY;
-  cursor.style.left = mx + 'px';
-  cursor.style.top = my + 'px';
-  setTimeout(() => {
-    trail.style.left = mx + 'px';
-    trail.style.top = my + 'px';
-  }, 80);
+// =============================
+// LOADER
+// =============================
+let lp=0;
+const lfill=document.getElementById('lfill');
+const lnum=document.getElementById('lnum');
+const loader=document.getElementById('loader');
+const li=setInterval(()=>{
+  lp+=Math.random()*3+.5;
+  if(lp>=100){lp=100;clearInterval(li);setTimeout(()=>loader.classList.add('out'),600);}
+  lfill.style.width=lp+'%';
+  lnum.textContent=Math.round(lp);
+},30);
+
+// =============================
+// CURSOR
+// =============================
+const cur=document.getElementById('cur'),cur2=document.getElementById('cur2');
+let cmx=0,cmy=0;
+document.addEventListener('mousemove',e=>{
+  cmx=e.clientX;cmy=e.clientY;
+  cur.style.left=cmx+'px';cur.style.top=cmy+'px';
+  setTimeout(()=>{cur2.style.left=cmx+'px';cur2.style.top=cmy+'px';},100);
 });
-document.querySelectorAll('a, .project-card, .skill-category, .stat-box').forEach(el => {
-  el.addEventListener('mouseenter', () => {
-    cursor.style.width = '20px'; cursor.style.height = '20px';
-    cursor.style.background = 'transparent';
-    cursor.style.border = '2px solid var(--cyan)';
-  });
-  el.addEventListener('mouseleave', () => {
-    cursor.style.width = '12px'; cursor.style.height = '12px';
-    cursor.style.background = 'var(--cyan)';
-    cursor.style.border = 'none';
-  });
+document.querySelectorAll('a,.proj-card,.c-link,.chip,.sk-row').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.classList.add('link');cur2.classList.add('link');});
+  el.addEventListener('mouseleave',()=>{cur.classList.remove('link');cur2.classList.remove('link');});
 });
 
-// ===== THREE.JS HERO CANVAS =====
-(function() {
-  const canvas = document.getElementById('hero-canvas');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x020409, 1);
+// =============================
+// SCROLL PROGRESS BAR
+// =============================
+const prog=document.getElementById('prog');
+window.addEventListener('scroll',()=>{
+  const sp=window.scrollY/(document.body.scrollHeight-innerHeight);
+  prog.style.width=(sp*100)+'%';
+});
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
-  camera.position.z = 80;
+// =============================
+// THREE.JS — SCROLL-DRIVEN 3D
+// =============================
+(function(){
+  const canvas=document.getElementById('c');
+  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(innerWidth,innerHeight);
+  renderer.setClearColor(0x010208,1);
 
-  // FOG
-  scene.fog = new THREE.FogExp2(0x020409, 0.008);
+  const scene=new THREE.Scene();
+  scene.fog=new THREE.FogExp2(0x010208,0.007);
+  const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,2000);
+  camera.position.set(0,0,100);
 
-  // PARTICLES GALAXY
-  const particleCount = 4000;
-  const positions = new Float32Array(particleCount * 3);
-  const colors = new Float32Array(particleCount * 3);
-  const sizes = new Float32Array(particleCount);
+  // ---- PARTICLE SYSTEM 1: Galaxy ----
+  const N=8000;
+  const pos=new Float32Array(N*3);
+  const col=new Float32Array(N*3);
+  const phase=new Float32Array(N);
 
-  for (let i = 0; i < particleCount; i++) {
-    const radius = Math.random() * 60 + 5;
-    const spinAngle = radius * 3;
-    const branchAngle = ((i % 3) / 3) * Math.PI * 2;
-
-    const randomX = (Math.random() - 0.5) * 3 * (1 / radius * 5);
-    const randomY = (Math.random() - 0.5) * 3 * (1 / radius * 5);
-    const randomZ = (Math.random() - 0.5) * 3 * (1 / radius * 5);
-
-    positions[i*3]   = Math.cos(branchAngle + spinAngle) * radius + randomX;
-    positions[i*3+1] = randomY * 2;
-    positions[i*3+2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
-
-    const mixFactor = radius / 60;
-    // Inner: cyan, Outer: gold/white
-    colors[i*3]   = 0 + mixFactor * 1.0;
-    colors[i*3+1] = 0.9 - mixFactor * 0.5;
-    colors[i*3+2] = 1.0 - mixFactor * 0.6;
-    sizes[i] = Math.random() * 2 + 0.5;
+  for(let i=0;i<N;i++){
+    const r=Math.random()*80+3;
+    const arms=5;
+    const b=((i%arms)/arms)*Math.PI*2;
+    const sp=r*2.2;
+    const ox=(Math.random()-.5)*2*(4/r);
+    const oy=(Math.random()-.5)*1.5*(4/r);
+    const oz=(Math.random()-.5)*2*(4/r);
+    pos[i*3]  =Math.cos(b+sp)*r+ox;
+    pos[i*3+1]=oy*4;
+    pos[i*3+2]=Math.sin(b+sp)*r+oz;
+    const t=r/80;
+    col[i*3]  =0.1+t*0.9;
+    col[i*3+1]=0.95-t*0.65;
+    col[i*3+2]=1.0-t*0.4;
+    phase[i]=Math.random()*Math.PI*2;
   }
 
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-  geo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-
-  const mat = new THREE.PointsMaterial({
-    size: 0.6,
-    vertexColors: true,
-    transparent: true,
-    opacity: 0.85,
-    sizeAttenuation: true,
-    depthWrite: false,
-  });
-
-  const galaxy = new THREE.Points(geo, mat);
+  const geo1=new THREE.BufferGeometry();
+  geo1.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  geo1.setAttribute('color',new THREE.BufferAttribute(col,3));
+  const mat1=new THREE.PointsMaterial({size:.55,vertexColors:true,transparent:true,opacity:.9,sizeAttenuation:true,depthWrite:false});
+  const galaxy=new THREE.Points(geo1,mat1);
   scene.add(galaxy);
 
-  // CENTRAL WIREFRAME SPHERE
-  const coreGeo = new THREE.IcosahedronGeometry(8, 3);
-  const coreMat = new THREE.MeshBasicMaterial({
-    color: 0x00e5ff,
-    wireframe: true,
-    transparent: true,
-    opacity: 0.12,
-  });
-  const core = new THREE.Mesh(coreGeo, coreMat);
-  scene.add(core);
+  // ---- PARTICLE SYSTEM 2: DNA Helix (morphs in on scroll) ----
+  const N2=2000;
+  const dnaPos=new Float32Array(N2*3);
+  for(let i=0;i<N2;i++){
+    const t=i/N2;
+    const angle=t*Math.PI*16;
+    const strand=i%2===0?1:-1;
+    dnaPos[i*3]  =Math.cos(angle+strand*Math.PI/2)*12;
+    dnaPos[i*3+1]=(t-.5)*120;
+    dnaPos[i*3+2]=Math.sin(angle+strand*Math.PI/2)*12;
+  }
+  const geo2=new THREE.BufferGeometry();
+  geo2.setAttribute('position',new THREE.BufferAttribute(dnaPos.slice(),3));
+  const mat2=new THREE.PointsMaterial({size:.6,color:0x00f5ff,transparent:true,opacity:0,sizeAttenuation:true,depthWrite:false});
+  const dna=new THREE.Points(geo2,mat2);
+  scene.add(dna);
 
-  // INNER SOLID SPHERE (glow)
-  const innerGeo = new THREE.SphereGeometry(5, 32, 32);
-  const innerMat = new THREE.MeshBasicMaterial({
-    color: 0x00e5ff,
-    transparent: true,
-    opacity: 0.03,
-  });
-  const inner = new THREE.Mesh(innerGeo, innerMat);
-  scene.add(inner);
+  // ---- PARTICLE SYSTEM 3: Sphere/Globe (morph for contact) ----
+  const N3=3000;
+  const sphPos=new Float32Array(N3*3);
+  for(let i=0;i<N3;i++){
+    const phi=Math.acos(1-2*(i/N3));
+    const theta=Math.sqrt(N3*Math.PI)*phi;
+    sphPos[i*3]  =28*Math.sin(phi)*Math.cos(theta);
+    sphPos[i*3+1]=28*Math.sin(phi)*Math.sin(theta);
+    sphPos[i*3+2]=28*Math.cos(phi);
+  }
+  const geo3=new THREE.BufferGeometry();
+  geo3.setAttribute('position',new THREE.BufferAttribute(sphPos.slice(),3));
+  const mat3=new THREE.PointsMaterial({size:.5,color:0xc044ff,transparent:true,opacity:0,sizeAttenuation:true,depthWrite:false});
+  const globe=new THREE.Points(geo3,mat3);
+  scene.add(globe);
 
-  // RINGS
-  for (let r = 0; r < 3; r++) {
-    const rGeo = new THREE.TorusGeometry(10 + r * 6, 0.05, 8, 120);
-    const rMat = new THREE.MeshBasicMaterial({
-      color: r === 0 ? 0x00e5ff : r === 1 ? 0xf0a500 : 0xff2d55,
-      transparent: true,
-      opacity: 0.25 - r * 0.05,
-    });
-    const ring = new THREE.Mesh(rGeo, rMat);
-    ring.rotation.x = Math.PI / 2 + r * 0.3;
-    ring.rotation.y = r * 0.5;
-    ring.userData.speed = 0.003 + r * 0.002;
-    ring.userData.axis = r;
+  // ---- WIREFRAME STRUCTURES ----
+  // Central torus knot
+  const tkG=new THREE.TorusKnotGeometry(7,1.8,128,16);
+  const tkM=new THREE.MeshBasicMaterial({color:0x00f5ff,wireframe:true,transparent:true,opacity:.07});
+  const tk=new THREE.Mesh(tkG,tkM);
+  scene.add(tk);
+
+  // Icosahedron
+  const icoG=new THREE.IcosahedronGeometry(14,1);
+  const icoM=new THREE.MeshBasicMaterial({color:0xc044ff,wireframe:true,transparent:true,opacity:0});
+  const ico=new THREE.Mesh(icoG,icoM);
+  scene.add(ico);
+
+  // ---- ORBIT RINGS ----
+  const ringDefs=[
+    {r:15,c:0x00f5ff,op:.18,sx:.002,axis:'z'},
+    {r:22,c:0xffcc00,op:.12,sx:.0015,axis:'x'},
+    {r:30,c:0xff2055,op:.1,sx:.001,axis:'y'},
+    {r:38,c:0xc044ff,op:.08,sx:.0008,axis:'z'},
+  ];
+  const rings=[];
+  ringDefs.forEach(d=>{
+    const rg=new THREE.TorusGeometry(d.r,.05,8,150);
+    const rm=new THREE.MeshBasicMaterial({color:d.c,transparent:true,opacity:d.op});
+    const ring=new THREE.Mesh(rg,rm);
+    ring.userData={sx:d.sx,axis:d.axis};
+    rings.push(ring);
     scene.add(ring);
+  });
+
+  // ---- CONNECTING LINES (grid) ----
+  const gridSize=12, gridCount=6;
+  const lineGroup=new THREE.Group();
+  for(let i=0;i<=gridCount;i++){
+    const x=(i/gridCount-.5)*gridSize*8;
+    const lg=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x,-gridSize*4,0),new THREE.Vector3(x,gridSize*4,0)]);
+    const lm=new THREE.LineBasicMaterial({color:0x00f5ff,transparent:true,opacity:.04});
+    lineGroup.add(new THREE.Line(lg,lm));
+  }
+  for(let i=0;i<=gridCount;i++){
+    const y=(i/gridCount-.5)*gridSize*8;
+    const lg=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-gridSize*4,y,0),new THREE.Vector3(gridSize*4,y,0)]);
+    const lm=new THREE.LineBasicMaterial({color:0x00f5ff,transparent:true,opacity:.04});
+    lineGroup.add(new THREE.Line(lg,lm));
+  }
+  lineGroup.position.z=-60;
+  scene.add(lineGroup);
+
+  // ---- FLOATING MINI-CUBES ----
+  const cubes=[];
+  for(let i=0;i<12;i++){
+    const cg=new THREE.BoxGeometry(.6,.6,.6);
+    const cm=new THREE.MeshBasicMaterial({color:[0x00f5ff,0xffcc00,0xc044ff][i%3],wireframe:true,transparent:true,opacity:.3});
+    const cube=new THREE.Mesh(cg,cm);
+    cube.position.set((Math.random()-.5)*100,(Math.random()-.5)*60,(Math.random()-.5)*40);
+    cube.userData={vx:(Math.random()-.5)*.03,vy:(Math.random()-.5)*.02,vz:(Math.random()-.5)*.02};
+    cubes.push(cube);
+    scene.add(cube);
   }
 
-  // MOUSE INTERACTION
-  let targetRX = 0, targetRY = 0;
-  let currentRX = 0, currentRY = 0;
-  document.addEventListener('mousemove', e => {
-    targetRY = (e.clientX / window.innerWidth - 0.5) * 0.4;
-    targetRX = (e.clientY / window.innerHeight - 0.5) * 0.2;
+  // ---- MOUSE ----
+  let mx=0,my=0,tmx=0,tmy=0;
+  document.addEventListener('mousemove',e=>{
+    tmx=(e.clientX/innerWidth-.5)*.6;
+    tmy=(e.clientY/innerHeight-.5)*.3;
   });
 
-  let time = 0;
-  function animate() {
+  // ---- SCROLL ANIMATION STATE ----
+  // We define keyframes at scroll %
+  // 0%   = galaxy + hero
+  // 25%  = DNA helix + zoom in
+  // 50%  = globe + rotate
+  // 75%  = back to galaxy zoomed out
+  // 100% = grid + contact
+
+  let t=0;
+  function getScrollPct(){ return window.scrollY/(document.body.scrollHeight-innerHeight)||0; }
+
+  // lerp helper
+  const lerp=(a,b,t)=>a+(b-a)*t;
+  const clamp=(v,min,max)=>Math.min(Math.max(v,min),max);
+  const easeInOut=(t)=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+
+  // Morphing galaxy positions to DNA then to sphere
+  const origPos=pos.slice(); // galaxy
+  const posAttr=geo1.attributes.position;
+
+  function morphPositions(fromArr,toArr,progress,N){
+    const ep=easeInOut(clamp(progress,0,1));
+    for(let i=0;i<N;i++){
+      const ti=i*3;
+      if(ti+2<fromArr.length&&ti+2<toArr.length){
+        posAttr.array[ti]  =lerp(fromArr[ti],  toArr[ti],  ep);
+        posAttr.array[ti+1]=lerp(fromArr[ti+1],toArr[ti+1],ep);
+        posAttr.array[ti+2]=lerp(fromArr[ti+2],toArr[ti+2],ep);
+      }
+    }
+    posAttr.needsUpdate=true;
+  }
+
+  // DNA target extended to N particles
+  const dnaTarget=new Float32Array(N*3);
+  for(let i=0;i<N;i++){
+    const ii=i%N2;
+    dnaTarget[i*3]  =dnaPos[ii*3];
+    dnaTarget[i*3+1]=dnaPos[ii*3+1];
+    dnaTarget[i*3+2]=dnaPos[ii*3+2];
+  }
+  // Sphere target extended to N particles
+  const sphTarget=new Float32Array(N*3);
+  for(let i=0;i<N;i++){
+    const ii=i%N3;
+    sphTarget[i*3]  =sphPos[ii*3];
+    sphTarget[i*3+1]=sphPos[ii*3+1];
+    sphTarget[i*3+2]=sphPos[ii*3+2];
+  }
+
+  function animate(){
     requestAnimationFrame(animate);
-    time += 0.005;
+    t+=.003;
 
-    // Smooth mouse follow
-    currentRX += (targetRX - currentRX) * 0.05;
-    currentRY += (targetRY - currentRY) * 0.05;
+    // smooth mouse
+    mx+=( tmx-mx)*.05;
+    my+=(tmy-my)*.05;
 
-    galaxy.rotation.y = time * 0.08 + currentRY;
-    galaxy.rotation.x = currentRX * 0.3;
+    const sp=getScrollPct();
 
-    core.rotation.x = time * 0.3;
-    core.rotation.y = time * 0.2;
+    // =====================
+    // SCROLL-DRIVEN CAMERA + SCENE
+    // =====================
+
+    if(sp<0.15){
+      // HERO: galaxy, camera pulls back slowly
+      const p=sp/0.15;
+      camera.position.set(mx*8,my*4+lerp(0,-10,p),lerp(100,80,easeInOut(p)));
+      camera.rotation.set(my*.05,mx*.08,0);
+      galaxy.rotation.y=t*.05+mx*.3;
+      galaxy.rotation.x=my*.1;
+      mat1.opacity=lerp(.9,.9,p);
+      tk.material.opacity=lerp(.07,.12,p);
+      tk.rotation.x=t*.18;tk.rotation.y=t*.12;
+      rings.forEach(r=>{ r.material.opacity*=1;});
+      morphPositions(origPos,origPos,0,N);
+      mat1.color&&(mat1.color=undefined);
+      mat1.vertexColors=true;
+      icoM.opacity=0;
+
+    } else if(sp<0.35){
+      // ABOUT/SKILLS: morph galaxy -> DNA helix, camera orbits
+      const p=(sp-.15)/.20;
+      camera.position.set(
+        lerp(mx*8,30,easeInOut(p)),
+        lerp(my*4-10,0,easeInOut(p)),
+        lerp(80,60,easeInOut(p))
+      );
+      morphPositions(origPos,dnaTarget,p,N);
+      galaxy.rotation.y=t*.04+lerp(mx*.3,.5,p);
+      galaxy.rotation.x=lerp(my*.1,t*.1,p);
+      mat1.opacity=.85;
+      tk.material.opacity=lerp(.12,0,p);
+      icoM.opacity=lerp(0,.06,p);
+      ico.rotation.y=t*.1;ico.rotation.x=t*.07;
+      rings.forEach((r,i)=>{ r.material.opacity=lerp(ringDefs[i].op,ringDefs[i].op*.3,p); });
+
+    } else if(sp<0.55){
+      // EXPERIENCE: DNA holds, camera sweeps right
+      const p=(sp-.35)/.20;
+      camera.position.set(
+        lerp(30,-20,easeInOut(p)),
+        lerp(0,10,easeInOut(p)),
+        lerp(60,55,easeInOut(p))
+      );
+      galaxy.rotation.y=t*.04+.5+lerp(0,-.8,p);
+      galaxy.rotation.z=lerp(0,.2,p);
+      mat1.opacity=.8;
+      icoM.opacity=lerp(.06,.08,p);
+      ico.rotation.y=t*.1;
+
+    } else if(sp<0.75){
+      // PROJECTS: morph DNA -> sphere, camera zooms out top-down
+      const p=(sp-.55)/.20;
+      camera.position.set(
+        lerp(-20,0,easeInOut(p)),
+        lerp(10,50,easeInOut(p)),
+        lerp(55,90,easeInOut(p))
+      );
+      camera.lookAt(0,0,0);
+      morphPositions(dnaTarget,sphTarget,p,N);
+      galaxy.rotation.y=t*.06;
+      galaxy.rotation.z=lerp(.2,0,p);
+      galaxy.rotation.x=lerp(0,.5,p);
+      mat1.opacity=lerp(.8,.85,p);
+      icoM.opacity=lerp(.08,0,p);
+      rings.forEach((r,i)=>{r.material.opacity=lerp(ringDefs[i].op*.3,ringDefs[i].op,p);});
+
+    } else {
+      // CONTACT: sphere, dramatic angle
+      const p=(sp-.75)/.25;
+      camera.position.set(
+        lerp(0,mx*6,p),
+        lerp(50,30+my*4,p),
+        lerp(90,70,p)
+      );
+      camera.lookAt(0,0,0);
+      galaxy.rotation.y=t*.05+mx*.3;
+      galaxy.rotation.x=my*.1;
+      morphPositions(sphTarget,sphTarget,0,N);
+      mat1.opacity=.9;
+    }
+
+    // Always look at origin unless overridden above
+    if(sp<0.55) camera.lookAt(0,0,0);
 
     // Animate rings
-    scene.children.forEach(child => {
-      if (child.userData.speed) {
-        if (child.userData.axis === 0) child.rotation.z += child.userData.speed;
-        if (child.userData.axis === 1) child.rotation.x += child.userData.speed;
-        if (child.userData.axis === 2) child.rotation.y += child.userData.speed;
-      }
+    rings.forEach(r=>{
+      const {sx,axis}=r.userData;
+      if(axis==='x') r.rotation.x+=sx;
+      else if(axis==='y') r.rotation.y+=sx;
+      else r.rotation.z+=sx;
     });
 
-    // Camera drift
-    camera.position.x = Math.sin(time * 0.1) * 5;
-    camera.position.y = Math.cos(time * 0.08) * 3;
-    camera.lookAt(0, 0, 0);
+    // Floating cubes
+    cubes.forEach(cube=>{
+      cube.position.x+=cube.userData.vx;
+      cube.position.y+=cube.userData.vy;
+      cube.rotation.x+=.01;cube.rotation.y+=.008;
+      if(Math.abs(cube.position.x)>55) cube.userData.vx*=-1;
+      if(Math.abs(cube.position.y)>35) cube.userData.vy*=-1;
+      cube.material.opacity=0.15+Math.sin(t+cube.position.x)*.1;
+    });
 
-    // Pulse core
-    const pulse = 1 + Math.sin(time * 2) * 0.05;
-    core.scale.setScalar(pulse);
+    // Grid lines subtle pulse
+    lineGroup.children.forEach((l,i)=>{ l.material.opacity=0.03+Math.sin(t*2+i*.5)*.02; });
 
-    renderer.render(scene, camera);
+    // Torus knot pulse
+    tk.scale.setScalar(1+Math.sin(t*1.5)*.04);
+
+    renderer.render(scene,camera);
   }
   animate();
 
-  // SCROLL: fade galaxy on scroll
-  window.addEventListener('scroll', () => {
-    const progress = window.scrollY / window.innerHeight;
-    galaxy.material.opacity = Math.max(0, 0.85 - progress * 1.5);
-    core.material.opacity = Math.max(0, 0.12 - progress * 0.2);
-  });
-
-  window.addEventListener('resize', () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
+  window.addEventListener('resize',()=>{
+    renderer.setSize(innerWidth,innerHeight);
+    camera.aspect=innerWidth/innerHeight;
     camera.updateProjectionMatrix();
   });
 })();
 
-// ===== SKILLS CANVAS (2D rings) =====
-(function() {
-  const canvas = document.getElementById('skills-canvas');
-  const ctx = canvas.getContext('2d');
-  const skills = [
-    { label: 'Java / Backend', pct: 0.92, color: '#00e5ff' },
-    { label: 'Data Pipelines / ETL', pct: 0.88, color: '#f0a500' },
-    { label: 'Apache Kafka', pct: 0.85, color: '#ff2d55' },
-    { label: 'AWS Cloud', pct: 0.80, color: '#00ff88' },
-    { label: 'SQL / Data Modeling', pct: 0.90, color: '#a78bfa' },
-    { label: 'Python', pct: 0.78, color: '#fb923c' },
-  ];
-
-  function resize() {
-    canvas.width = canvas.offsetWidth;
-    canvas.height = 200;
-    drawRings(1);
-  }
-
-  let animProgress = 0;
-  function drawRings(progress) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const n = skills.length;
-    const spacing = canvas.width / n;
-    const r = Math.min(spacing * 0.38, 70);
-    const cx_base = spacing / 2;
-    const cy = canvas.height / 2;
-    const lw = 6;
-
-    skills.forEach((s, i) => {
-      const cx = cx_base + i * spacing;
-      // Track
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-      ctx.lineWidth = lw;
-      ctx.stroke();
-
-      // Fill
-      const end = -Math.PI / 2 + (Math.PI * 2) * s.pct * progress;
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, -Math.PI / 2, end);
-      ctx.strokeStyle = s.color;
-      ctx.lineWidth = lw;
-      ctx.lineCap = 'round';
-      ctx.shadowColor = s.color;
-      ctx.shadowBlur = 10;
-      ctx.stroke();
-      ctx.shadowBlur = 0;
-
-      // Center text
-      ctx.fillStyle = s.color;
-      ctx.font = `bold ${Math.round(r * 0.38)}px 'Bebas Neue', cursive`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(Math.round(s.pct * 100 * progress) + '%', cx, cy);
-
-      // Label
-      ctx.fillStyle = 'rgba(255,255,255,0.35)';
-      ctx.font = `${Math.max(9, Math.round(r * 0.18))}px 'JetBrains Mono', monospace`;
-      ctx.fillText(s.label, cx, cy + r + 16);
+// =============================
+// CONTACT CANVAS (network)
+// =============================
+(function(){
+  const cv=document.getElementById('ccanvas');
+  const cx=cv.getContext('2d');
+  function rsz(){cv.width=cv.offsetWidth;cv.height=cv.offsetHeight;}
+  rsz();window.addEventListener('resize',rsz);
+  const nodes=Array.from({length:50},()=>({
+    x:Math.random()*cv.width,y:Math.random()*cv.height,
+    vx:(Math.random()-.5)*.5,vy:(Math.random()-.5)*.5,
+    r:Math.random()*2+.5
+  }));
+  const labels=['Java','Kafka','AWS','Python','SQL','Spring','ETL','Spark','Redis','Trino','Docker','Airflow'];
+  function draw(){
+    cx.clearRect(0,0,cv.width,cv.height);
+    nodes.forEach((a,i)=>{
+      a.x+=a.vx;a.y+=a.vy;
+      if(a.x<0||a.x>cv.width)a.vx*=-1;
+      if(a.y<0||a.y>cv.height)a.vy*=-1;
+      nodes.slice(i+1).forEach(b=>{
+        const d=Math.hypot(a.x-b.x,a.y-b.y);
+        if(d<100){
+          cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);
+          cx.strokeStyle=`rgba(0,245,255,${(1-d/100)*.25})`;
+          cx.lineWidth=.5;cx.stroke();
+        }
+      });
+      cx.beginPath();cx.arc(a.x,a.y,a.r,0,Math.PI*2);
+      cx.fillStyle='rgba(0,245,255,0.9)';
+      cx.shadowColor='#00f5ff';cx.shadowBlur=6;cx.fill();cx.shadowBlur=0;
     });
+    const ccx=cv.width/2,ccy=cv.height/2;
+    cx.beginPath();cx.arc(ccx,ccy,65,0,Math.PI*2);
+    cx.fillStyle='rgba(0,245,255,0.04)';cx.fill();
+    cx.strokeStyle='rgba(0,245,255,0.15)';cx.lineWidth=1;cx.stroke();
+    cx.fillStyle='rgba(0,245,255,0.9)';
+    cx.font=`bold 14px 'Bebas Neue'`;cx.textAlign='center';
+    cx.fillText('PAVAN',ccx,ccy-10);cx.fillText('KRISHNA',ccx,ccy+14);
+    cx.font=`9px 'JetBrains Mono'`;cx.fillStyle='rgba(255,255,255,0.3)';
+    cx.fillText('DATA ENGINEER',ccx,ccy+34);
+    requestAnimationFrame(draw);
   }
-
-  // Animate in when visible
-  let animated = false;
-  const observer = new IntersectionObserver(entries => {
-    if (entries[0].isIntersecting && !animated) {
-      animated = true;
-      let start = null;
-      function anim(ts) {
-        if (!start) start = ts;
-        const p = Math.min((ts - start) / 1400, 1);
-        const ease = 1 - Math.pow(1 - p, 3);
-        drawRings(ease);
-        if (p < 1) requestAnimationFrame(anim);
-      }
-      requestAnimationFrame(anim);
-    }
-  }, { threshold: 0.3 });
-  observer.observe(canvas);
-
-  resize();
-  window.addEventListener('resize', resize);
+  draw();
 })();
 
-// ===== SCROLL REVEAL =====
-const revealEls = document.querySelectorAll('.reveal');
-const io = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.classList.add('visible');
-      io.unobserve(e.target);
+// =============================
+// EXPERIENCE TABS
+// =============================
+document.querySelectorAll('.exp-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.exp-tab').forEach(t=>t.classList.remove('on'));
+    document.querySelectorAll('.exp-panel').forEach(p=>p.classList.remove('on'));
+    tab.classList.add('on');
+    document.getElementById('p-'+tab.dataset.p).classList.add('on');
+  });
+});
+
+// =============================
+// SKILL BARS
+// =============================
+const barObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const fill=e.target.querySelector('.sk-fill');
+      fill.style.width=e.target.dataset.pct+'%';
+      barObs.unobserve(e.target);
     }
   });
-}, { threshold: 0.1 });
-revealEls.forEach(el => io.observe(el));
+},{threshold:.5});
+document.querySelectorAll('.sk-row').forEach(r=>barObs.observe(r));
+
+// =============================
+// PROJECT CARD MOUSE GLOW
+// =============================
+document.querySelectorAll('.proj-card').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    card.style.setProperty('--px',((e.clientX-r.left)/r.width*100)+'%');
+    card.style.setProperty('--py',((e.clientY-r.top)/r.height*100)+'%');
+  });
+});
+
+// =============================
+// SCROLL REVEAL
+// =============================
+const rvObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vi');rvObs.unobserve(e.target);}});
+},{threshold:.08});
+document.querySelectorAll('.rv').forEach(el=>rvObs.observe(el));
 </script>
 </body>
 </html>
